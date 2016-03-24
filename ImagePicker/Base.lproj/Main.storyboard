@@ -3,6 +3,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
+        <capability name="Navigation items with more than one left or right bar item" minToolsVersion="7.0"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
@@ -25,21 +26,28 @@
                                 </constraints>
                             </imageView>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" red="0.43529411759999997" green="0.4431372549" blue="0.47450980390000003" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstItem="Sad-U4-LhM" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="PIc-su-gtv"/>
                             <constraint firstItem="Sad-U4-LhM" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="xxv-ze-tKj"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="G3J-gc-Heg">
-                        <barButtonItem key="leftBarButtonItem" title="Photos" id="srs-8J-DPB">
-                            <connections>
-                                <action selector="cameraTapped:" destination="BYZ-38-t0r" id="IFu-fE-eDi"/>
-                            </connections>
-                        </barButtonItem>
+                        <leftBarButtonItems>
+                            <barButtonItem title="Library" id="srs-8J-DPB">
+                                <connections>
+                                    <action selector="libraryTapped:" destination="BYZ-38-t0r" id="LBU-8J-Iih"/>
+                                </connections>
+                            </barButtonItem>
+                            <barButtonItem title="Album" id="9b5-eZ-pbh">
+                                <connections>
+                                    <action selector="albumTapped:" destination="BYZ-38-t0r" id="3FS-TF-mic"/>
+                                </connections>
+                            </barButtonItem>
+                        </leftBarButtonItems>
                         <barButtonItem key="rightBarButtonItem" tag="1" systemItem="camera" id="8Y8-in-jxO">
                             <connections>
-                                <action selector="cameraTapped:" destination="BYZ-38-t0r" id="pHV-er-j78"/>
+                                <action selector="cameraTapped:" destination="BYZ-38-t0r" id="3ub-sm-l29"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
