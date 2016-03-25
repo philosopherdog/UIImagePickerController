@@ -53,7 +53,6 @@
 - (IBAction)cameraTapped:(UIBarButtonItem *)sender {
     
     if (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
-        // make a UIAlertController
         return;
     }
     
@@ -69,7 +68,8 @@
 
 #pragma mark - Delegate Methods
 
-- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info {
+- (void)imagePickerController:(UIImagePickerController *)picker
+didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info {
     NSLog(@"%@", info);
     UIImage *image = info[UIImagePickerControllerOriginalImage];
     self.imageView.image = image;
@@ -84,12 +84,17 @@
     }];
 }
 
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
+    NSLog(@"Was cancelled");
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+
 // play video
 - (void)playVideoAtPath:(NSURL *)path {
     AVPlayer *player = [AVPlayer playerWithURL:path];
     AVPlayerViewController *pvc = [AVPlayerViewController new];
     pvc.player = player;
-    //    [pvc.player play]; // if you want to start by playing
+    // [pvc.player play]; // if you want to start by playing
     [self presentViewController:pvc animated:YES completion:nil];
 }
 
@@ -119,8 +124,4 @@
     }
 }
 
-- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
-    NSLog(@"Was cancelled");
-    [self dismissViewControllerAnimated:YES completion:nil];
-}
 @end
