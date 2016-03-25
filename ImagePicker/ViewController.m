@@ -55,7 +55,6 @@
     if (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
         return;
     }
-    
     UIImagePickerController *ipc = [[UIImagePickerController alloc] init];
     ipc.delegate = self;
     NSArray *sourceTypes = [UIImagePickerController availableMediaTypesForSourceType:UIImagePickerControllerSourceTypeCamera];
