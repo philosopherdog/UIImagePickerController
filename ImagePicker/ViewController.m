@@ -7,6 +7,8 @@
 //
 
 #import "ViewController.h"
+// needed to check authorization status
+@import Photos;
 
 // for AVPlayer
 @import AVFoundation;
@@ -20,9 +22,80 @@
 
 @implementation ViewController
 
+#pragma mark - View Controller Life Cycle
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(returnedFromBackgroundNotification:) name:UIApplicationWillEnterForegroundNotification object:nil];
+    [self photolibraryAuthorizationStatus];
+    [self cameraAccessAuthorizationStatus];
+}
+
+#pragma mark - Checking Photo Library Authorization
+
+- (void)returnedFromBackgroundNotification:(NSNotification *)notification {
+    [self photolibraryAuthorizationStatus];
+    [self cameraAccessAuthorizationStatus];
+}
+
+- (BOOL)photolibraryAuthorizationStatus {
+    PHAuthorizationStatus authStatus = [PHPhotoLibrary authorizationStatus];
+    switch (authStatus) {
+        case PHAuthorizationStatusAuthorized:
+            return YES;
+        case PHAuthorizationStatusNotDetermined: {
+            [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+                [self photolibraryAuthorizationStatus];
+            }];
+        }
+            return NO;
+        case PHAuthorizationStatusDenied:
+            [self alertUserWithMessage:@"This App Requires PhotoLibary Access To Work."];
+            return NO;
+        case PHAuthorizationStatusRestricted:
+            return NO;
+    }
+}
+
+- (void)alertUserWithMessage:(NSString *)message {
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Authorization" message:message preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *action = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+        [[UIApplication sharedApplication] openURL:url];
+    }];
+    [alertController addAction:action];
+    [self presentViewController:alertController animated:YES completion:nil];
+}
+
+#pragma mark - Camera Access Authorization
+
+- (BOOL)cameraAccessAuthorizationStatus {
+    AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+    switch (authStatus) {
+        case AVAuthorizationStatusAuthorized:
+            NSLog(@"Camera authorized");
+            return YES;
+        case AVAuthorizationStatusRestricted:
+            NSLog(@"Camera restricted");
+            return NO;
+        case AVAuthorizationStatusNotDetermined:
+            NSLog(@"Camera status not determined");
+            [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+            return NO;
+        case AVAuthorizationStatusDenied:
+            NSLog(@"Camera status denied");
+            [self alertUserWithMessage:@"This App Requires Authorization To Use Your Camera"];
+            return NO;
+    }
+}
+
+
 #pragma mark - Button Actions
 
 - (IBAction)albumTapped:(UIBarButtonItem *)sender {
+    if (![self photolibraryAuthorizationStatus]) {
+        return;
+    }
     if (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeSavedPhotosAlbum]) {
         return;
     }
@@ -37,6 +110,9 @@
 }
 
 - (IBAction)libraryTapped:(UIBarButtonItem *)sender {
+    if (![self photolibraryAuthorizationStatus]) {
+        return;
+    }
     if (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary]) {
         return;
     }
@@ -51,6 +127,9 @@
 }
 
 - (IBAction)cameraTapped:(UIBarButtonItem *)sender {
+    if (![self cameraAccessAuthorizationStatus]) {
+        return;
+    }
     if (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
         return;
     }
@@ -121,6 +200,12 @@
     if (error) {
         NSLog(@"%@", error.localizedDescription);
     }
+}
+
+#pragma mark - Tear Down
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter]removeObserver:self];
 }
 
 @end
