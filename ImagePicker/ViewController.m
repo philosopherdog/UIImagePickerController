@@ -104,7 +104,7 @@
     imagePickerController.delegate = self;
     imagePickerController.sourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
     imagePickerController.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:
-                                        UIImagePickerControllerSourceTypeCamera];
+                                        UIImagePickerControllerSourceTypeSavedPhotosAlbum];
     [self presentViewController:imagePickerController animated:YES completion:^{
         NSLog(@"%s", __PRETTY_FUNCTION__);
     }];
@@ -121,7 +121,7 @@
     imagePickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
     imagePickerController.delegate = self;
     imagePickerController.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:
-                                        UIImagePickerControllerSourceTypeCamera];
+                                        UIImagePickerControllerSourceTypePhotoLibrary];
     [self presentViewController:imagePickerController animated:YES completion:^{
         NSLog(@"%s", __PRETTY_FUNCTION__);
     }];
