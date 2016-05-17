@@ -50,6 +50,7 @@
         }
             return NO;
         case PHAuthorizationStatusDenied:
+            // fires if the user denies system attempt to authorize photo library
             [self alertUserWithMessage:@"This App Requires PhotoLibary Access To Work."];
             return NO;
         case PHAuthorizationStatusRestricted:
@@ -93,10 +94,10 @@
 #pragma mark - Button Actions
 
 - (IBAction)albumTapped:(UIBarButtonItem *)sender {
-    if (![self photolibraryAuthorizationStatus]) {
+    if (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeSavedPhotosAlbum]) {
         return;
     }
-    if (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeSavedPhotosAlbum]) {
+    if (![self photolibraryAuthorizationStatus]) {
         return;
     }
     UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
@@ -110,10 +111,10 @@
 }
 
 - (IBAction)libraryTapped:(UIBarButtonItem *)sender {
-    if (![self photolibraryAuthorizationStatus]) {
+    if (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary]) {
         return;
     }
-    if (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary]) {
+    if (![self photolibraryAuthorizationStatus]) {
         return;
     }
     UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
@@ -127,10 +128,10 @@
 }
 
 - (IBAction)cameraTapped:(UIBarButtonItem *)sender {
-    if (![self cameraAccessAuthorizationStatus]) {
+    if (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
         return;
     }
-    if (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
+    if (![self cameraAccessAuthorizationStatus]) {
         return;
     }
     UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
