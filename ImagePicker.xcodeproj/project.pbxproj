@@ -101,6 +101,7 @@
 		AA6EC0C61CA19F420068A6D4 /* ImagePicker */ = {
 			isa = PBXGroup;
 			children = (
+				AA6EC0D81CA19F420068A6D4 /* Info.plist */,
 				AA6EC0CD1CA19F420068A6D4 /* ViewController.h */,
 				AA6EC0CE1CA19F420068A6D4 /* ViewController.m */,
 				AA6EC0D01CA19F420068A6D4 /* Main.storyboard */,
@@ -116,7 +117,6 @@
 				AA6EC0CB1CA19F420068A6D4 /* AppDelegate.m */,
 				AA6EC0D31CA19F420068A6D4 /* Assets.xcassets */,
 				AA6EC0D51CA19F420068A6D4 /* LaunchScreen.storyboard */,
-				AA6EC0D81CA19F420068A6D4 /* Info.plist */,
 				AA6EC0C81CA19F420068A6D4 /* main.m */,
 			);
 			name = "Supporting Files";

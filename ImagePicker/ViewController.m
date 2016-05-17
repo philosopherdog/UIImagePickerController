@@ -93,8 +93,20 @@
 
 #pragma mark - Button Actions
 
+/*
+ * Check if the source type is available
+ * Check for authorization (optional)
+ * Init UIImagePickerController
+ * Set delegate
+ * Set sourceType
+ * Set mediaTypes
+ * Present the view controller
+ * Handle delegate callbacks
+ */
+
 - (IBAction)albumTapped:(UIBarButtonItem *)sender {
-    if (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeSavedPhotosAlbum]) {
+    UIImagePickerControllerSourceType albumSourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
+    if (![UIImagePickerController isSourceTypeAvailable:albumSourceType]) {
         return;
     }
     if (![self photolibraryAuthorizationStatus]) {
@@ -102,33 +114,35 @@
     }
     UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
     imagePickerController.delegate = self;
-    imagePickerController.sourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
+    imagePickerController.sourceType = albumSourceType;
     imagePickerController.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:
-                                        UIImagePickerControllerSourceTypeSavedPhotosAlbum];
+                                        albumSourceType];
     [self presentViewController:imagePickerController animated:YES completion:^{
         NSLog(@"%s", __PRETTY_FUNCTION__);
     }];
 }
 
 - (IBAction)libraryTapped:(UIBarButtonItem *)sender {
-    if (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary]) {
+    UIImagePickerControllerSourceType photoLibSourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+    if (![UIImagePickerController isSourceTypeAvailable:photoLibSourceType]) {
         return;
     }
     if (![self photolibraryAuthorizationStatus]) {
         return;
     }
     UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
-    imagePickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+    imagePickerController.sourceType = photoLibSourceType;
     imagePickerController.delegate = self;
     imagePickerController.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:
-                                        UIImagePickerControllerSourceTypePhotoLibrary];
+                                        photoLibSourceType];
     [self presentViewController:imagePickerController animated:YES completion:^{
         NSLog(@"%s", __PRETTY_FUNCTION__);
     }];
 }
 
 - (IBAction)cameraTapped:(UIBarButtonItem *)sender {
-    if (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
+    UIImagePickerControllerSourceType cameraSourceType = UIImagePickerControllerSourceTypeCamera;
+    if (![UIImagePickerController isSourceTypeAvailable:cameraSourceType]) {
         return;
     }
     if (![self cameraAccessAuthorizationStatus]) {
@@ -136,22 +150,33 @@
     }
     UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
     imagePickerController.delegate = self;
-    NSArray *sourceTypes = [UIImagePickerController availableMediaTypesForSourceType:UIImagePickerControllerSourceTypeCamera];
+    NSArray *sourceTypes = [UIImagePickerController availableMediaTypesForSourceType:cameraSourceType];
     NSLog(@"%@", sourceTypes);
-    imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
+    imagePickerController.sourceType = cameraSourceType;
     imagePickerController.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:
-                                        UIImagePickerControllerSourceTypeCamera];
+                                        cameraSourceType];
     [self presentViewController:imagePickerController animated:YES completion:nil];
 }
 
 #pragma mark - Delegate Methods
 
+/*
+ * _info_ dictionary passes us the info about a chosen item
+ * UIImagePickerControllerMediaType is either "public.image" or "public.movie"
+ * UIImagePickerControllerReferenceURL URL pointing to image/video in the library
+ * UIImagePickerControllerOriginalImage is the reference to the image you will want to use
+ * UIImagePickerControllerOriginalMedia is the reference to the movie in a temp file
+ */
+
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info {
     NSLog(@"%@", info);
-    UIImage *image = info[UIImagePickerControllerOriginalImage];
-    self.imageView.image = image;
     [self dismissViewControllerAnimated:YES completion:^ {
-        // if it's a movie play it
+        // handle image
+        if ([info[UIImagePickerControllerMediaType] isEqualToString:@"public.image"]) {
+            UIImage *image = info[UIImagePickerControllerOriginalImage];
+            self.imageView.image = image;
+        }
+        // handle movie
         if ([info[UIImagePickerControllerMediaType] isEqualToString:@"public.movie"]) {
             NSLog(@"is movie");
             NSURL *url = info[UIImagePickerControllerMediaURL];
@@ -177,7 +202,7 @@
     [self presentViewController:pvc animated:YES completion:nil];
 }
 
-#pragma mark - Saving Video
+#pragma mark - Save Video
 
 // saves video to Photo Album
 - (void)saveMovieWithInfo:(NSDictionary<NSString *,id> *)info {
