@@ -26,12 +26,12 @@
     if (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeSavedPhotosAlbum]) {
         return;
     }
-    UIImagePickerController *ipc = [[UIImagePickerController alloc] init];
-    ipc.delegate = self;
-    ipc.sourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
-    ipc.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:
-                      UIImagePickerControllerSourceTypeCamera];
-    [self presentViewController:ipc animated:YES completion:^{
+    UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
+    imagePickerController.delegate = self;
+    imagePickerController.sourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
+    imagePickerController.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:
+                                        UIImagePickerControllerSourceTypeCamera];
+    [self presentViewController:imagePickerController animated:YES completion:^{
         NSLog(@"%s", __PRETTY_FUNCTION__);
     }];
 }
@@ -40,39 +40,38 @@
     if (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypePhotoLibrary]) {
         return;
     }
-    UIImagePickerController *ipc = [[UIImagePickerController alloc] init];
-    ipc.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-    ipc.delegate = self;
-    ipc.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:
-                      UIImagePickerControllerSourceTypeCamera];
-    [self presentViewController:ipc animated:YES completion:^{
+    UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
+    imagePickerController.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+    imagePickerController.delegate = self;
+    imagePickerController.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:
+                                        UIImagePickerControllerSourceTypeCamera];
+    [self presentViewController:imagePickerController animated:YES completion:^{
         NSLog(@"%s", __PRETTY_FUNCTION__);
     }];
 }
 
 - (IBAction)cameraTapped:(UIBarButtonItem *)sender {
-    
     if (![UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
         return;
     }
-    UIImagePickerController *ipc = [[UIImagePickerController alloc] init];
-    ipc.delegate = self;
+    UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
+    imagePickerController.delegate = self;
     NSArray *sourceTypes = [UIImagePickerController availableMediaTypesForSourceType:UIImagePickerControllerSourceTypeCamera];
     NSLog(@"%@", sourceTypes);
-    ipc.sourceType = UIImagePickerControllerSourceTypeCamera;
-    ipc.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:
-      UIImagePickerControllerSourceTypeCamera];
-    [self presentViewController:ipc animated:YES completion:nil];
+    imagePickerController.sourceType = UIImagePickerControllerSourceTypeCamera;
+    imagePickerController.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:
+                                        UIImagePickerControllerSourceTypeCamera];
+    [self presentViewController:imagePickerController animated:YES completion:nil];
 }
 
 #pragma mark - Delegate Methods
 
-- (void)imagePickerController:(UIImagePickerController *)picker
-didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info {
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info {
     NSLog(@"%@", info);
     UIImage *image = info[UIImagePickerControllerOriginalImage];
     self.imageView.image = image;
     [self dismissViewControllerAnimated:YES completion:^ {
+        // if it's a movie play it
         if ([info[UIImagePickerControllerMediaType] isEqualToString:@"public.movie"]) {
             NSLog(@"is movie");
             NSURL *url = info[UIImagePickerControllerMediaURL];
@@ -88,7 +87,8 @@ didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info {
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
-// play video
+#pragma mark - Play Movie
+
 - (void)playVideoAtPath:(NSURL *)path {
     AVPlayer *player = [AVPlayer playerWithURL:path];
     AVPlayerViewController *pvc = [AVPlayerViewController new];
