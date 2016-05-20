@@ -6,6 +6,16 @@
 //  Copyright © 2016 steve. All rights reserved.
 //
 
+/*
+ Notes:
+ 
+ UIImagePickerController is a wrapper for simple interactions with the camera on iOS. If you need more control use AVFoundation.
+ 
+ Use of the photo library and camera by your app requires authorization. This is automatic. However, if the user declines authorization the photos library simply shows a black lock screen, and the camera is presented without buttons. To get more control over authorization I've presented some starter code below.
+ 
+ 
+ */
+
 #import "ViewController.h"
 // needed to check authorization status
 @import Photos;
