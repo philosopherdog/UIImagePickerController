@@ -31,12 +31,12 @@
     [self cameraAccessAuthorizationStatus];
 }
 
-#pragma mark - Checking Photo Library Authorization
-
 - (void)returnedFromBackgroundNotification:(NSNotification *)notification {
     [self photolibraryAuthorizationStatus];
     [self cameraAccessAuthorizationStatus];
 }
+
+#pragma mark - Checking Photo Library Authorization
 
 - (BOOL)photolibraryAuthorizationStatus {
     PHAuthorizationStatus authStatus = [PHPhotoLibrary authorizationStatus];
@@ -60,11 +60,15 @@
 
 - (void)alertUserWithMessage:(NSString *)message {
     UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Authorization" message:message preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *action = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
         [[UIApplication sharedApplication] openURL:url];
     }];
-    [alertController addAction:action];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        NSLog(@"Cancel Tapped");
+    }];
+    [alertController addAction:cancelAction];
+    [alertController addAction:okAction];
     [self presentViewController:alertController animated:YES completion:nil];
 }
 
@@ -163,7 +167,7 @@
 /*
  * _info_ dictionary passes us the info about a chosen item
  * UIImagePickerControllerMediaType is either "public.image" or "public.movie"
- * UIImagePickerControllerReferenceURL URL pointing to image/video in the library
+ * UIImagePickerControllerReferenceURL URL points to image/video in the library
  * UIImagePickerControllerOriginalImage is the reference to the image you will want to use
  * UIImagePickerControllerOriginalMedia is the reference to the movie in a temp file
  */
