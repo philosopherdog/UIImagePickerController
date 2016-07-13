@@ -9,9 +9,9 @@
 /*
  Notes:
  
- UIImagePickerController is a wrapper for simple interactions with the camera on iOS. If you need more control use AVFoundation.
+ UIImagePickerController is a wrapper for simple interactions with the camera and photos library on iOS. If you need more low-level control use AVFoundation.
  
- Use of the photo library and camera by your app requires authorization. This is automatic. However, if the user declines authorization the photos library simply shows a black lock screen, and the camera is presented without buttons. To get more control over authorization I've presented some starter code below.
+ Use of the photo library and camera by your app requires authorization. This is automatic. However, if the user declines authorization the photos library simply shows a black lock screen, and the camera is presented without buttons. To get more control over authorization I've included some starter code below.
  
  
  */
@@ -36,6 +36,7 @@
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    // this adds a Notification in case the user exits the app and changes the app's permissions in the device settings
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(returnedFromBackgroundNotification:) name:UIApplicationWillEnterForegroundNotification object:nil];
     [self photolibraryAuthorizationStatus];
     [self cameraAccessAuthorizationStatus];
@@ -71,6 +72,7 @@
 - (void)alertUserWithMessage:(NSString *)message {
     UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Authorization" message:message preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        // I'm taking the user to the Device settings when they hit OK
         NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
         [[UIApplication sharedApplication] openURL:url];
     }];
@@ -120,17 +122,26 @@
 
 - (IBAction)albumTapped:(UIBarButtonItem *)sender {
     UIImagePickerControllerSourceType albumSourceType = UIImagePickerControllerSourceTypeSavedPhotosAlbum;
+    
+    // guards allow early exit if we don't have sources or we aren't authorized
     if (![UIImagePickerController isSourceTypeAvailable:albumSourceType]) {
         return;
     }
     if (![self photolibraryAuthorizationStatus]) {
+        NSLog(@"%s fails photo authorization", __PRETTY_FUNCTION__);
         return;
     }
+    
+    [self presentImagePickerControllerWithSourceType:albumSourceType];
+}
+
+// called from albumTapped: & libraryTapped:
+- (void)presentImagePickerControllerWithSourceType:(UIImagePickerControllerSourceType)type {
     UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
     imagePickerController.delegate = self;
-    imagePickerController.sourceType = albumSourceType;
+    imagePickerController.sourceType = type;
     imagePickerController.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:
-                                        albumSourceType];
+                                        type];
     [self presentViewController:imagePickerController animated:YES completion:^{
         NSLog(@"%s", __PRETTY_FUNCTION__);
     }];
@@ -144,14 +155,7 @@
     if (![self photolibraryAuthorizationStatus]) {
         return;
     }
-    UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
-    imagePickerController.sourceType = photoLibSourceType;
-    imagePickerController.delegate = self;
-    imagePickerController.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:
-                                        photoLibSourceType];
-    [self presentViewController:imagePickerController animated:YES completion:^{
-        NSLog(@"%s", __PRETTY_FUNCTION__);
-    }];
+    [self presentImagePickerControllerWithSourceType:photoLibSourceType];
 }
 
 - (IBAction)cameraTapped:(UIBarButtonItem *)sender {
@@ -162,20 +166,15 @@
     if (![self cameraAccessAuthorizationStatus]) {
         return;
     }
-    UIImagePickerController *imagePickerController = [[UIImagePickerController alloc] init];
-    imagePickerController.delegate = self;
-    NSArray *sourceTypes = [UIImagePickerController availableMediaTypesForSourceType:cameraSourceType];
-    NSLog(@"%@", sourceTypes);
-    imagePickerController.sourceType = cameraSourceType;
-    imagePickerController.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:
-                                        cameraSourceType];
-    [self presentViewController:imagePickerController animated:YES completion:nil];
+    
+    [self presentImagePickerControllerWithSourceType:cameraSourceType];
 }
 
 #pragma mark - Delegate Methods
 
 /*
- * _info_ dictionary passes us the info about a chosen item
+ * Use imagePickerController:didFinishPickingMediaWithInfo: to get the image/movie passed back to you
+ * Apple uses the _info_ dictionary parameter to pass us the info about a chosen item
  * UIImagePickerControllerMediaType is either "public.image" or "public.movie"
  * UIImagePickerControllerReferenceURL URL points to image/video in the library
  * UIImagePickerControllerOriginalImage is the reference to the image you will want to use
@@ -183,7 +182,9 @@
  */
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info {
-    NSLog(@"%@", info);
+    
+    NSLog(@"%s %@", __PRETTY_FUNCTION__, info);
+    
     [self dismissViewControllerAnimated:YES completion:^ {
         // handle image
         if ([info[UIImagePickerControllerMediaType] isEqualToString:@"public.image"]) {
@@ -210,10 +211,10 @@
 
 - (void)playVideoAtPath:(NSURL *)path {
     AVPlayer *player = [AVPlayer playerWithURL:path];
-    AVPlayerViewController *pvc = [AVPlayerViewController new];
-    pvc.player = player;
+    AVPlayerViewController *playerViewController = [AVPlayerViewController new];
+    playerViewController.player = player;
     // [pvc.player play]; // if you want to start by playing
-    [self presentViewController:pvc animated:YES completion:nil];
+    [self presentViewController:playerViewController animated:YES completion:nil];
 }
 
 #pragma mark - Save Video
@@ -237,8 +238,9 @@
     // remove the temp file
     NSError *err = nil;
     [[NSFileManager defaultManager] removeItemAtPath:videoPath error:&err];
-    if (error) {
-        NSLog(@"%@", error.localizedDescription);
+    if (error || err) {
+        NSLog(@"didFinishSaving error: %@", error.localizedDescription);
+        NSLog(@"file manager error: %@", err.localizedDescription);
     }
 }
 
