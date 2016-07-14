@@ -195,8 +195,10 @@
         if ([info[UIImagePickerControllerMediaType] isEqualToString:@"public.movie"]) {
             NSLog(@"is movie");
             NSURL *url = info[UIImagePickerControllerMediaURL];
-            // play video
+            // play video with private method
             [self playVideoAtPath:url];
+            
+            // save the movie using this private method
             // [self saveMovieWithInfo:info];
         }
     }];
@@ -213,7 +215,7 @@
     AVPlayer *player = [AVPlayer playerWithURL:path];
     AVPlayerViewController *playerViewController = [AVPlayerViewController new];
     playerViewController.player = player;
-    // [pvc.player play]; // if you want to start by playing
+    // [pvc.player play]; // if you want to start by playing right away
     [self presentViewController:playerViewController animated:YES completion:nil];
 }
 
@@ -238,8 +240,10 @@
     // remove the temp file
     NSError *err = nil;
     [[NSFileManager defaultManager] removeItemAtPath:videoPath error:&err];
-    if (error || err) {
+    if (error) {
         NSLog(@"didFinishSaving error: %@", error.localizedDescription);
+    }
+    if (err) {
         NSLog(@"file manager error: %@", err.localizedDescription);
     }
 }
